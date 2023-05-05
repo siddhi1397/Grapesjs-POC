@@ -1,0 +1,134 @@
+.editor-container {
+   width: 500px;
+   margin: auto;
+}
+
+::ng-deep.gjs-cv-canvas {
+    width: 100%;
+}
+
+::ng-deep.gjs-block:hover {
+   box-shadow: none !important;
+}
+
+::ng-deep.gjs-rte-toolbar {
+   width: 450px !important;
+}
+
+.d-none {
+   display: none;
+}
+
+.d-block {
+   display: block;
+}
+
+::ng-deep.gjs-block {
+   width: 3.5%;
+   min-width: 45px;
+   min-height: 90px;
+   border: none;
+   border-radius: 0;
+   margin: 0;
+   box-shadow: none;
+   transition: none;
+   transition-property: none;
+   height: 75px;
+   padding-left: 5px !important;
+}
+
+::ng-deep.gjs-fonts::before {
+   font-size: 2.5em;
+}
+
+::ng-deep.gjs-block.fa {
+   font-size: 1.5em;
+   line-height: 1.3em;
+}
+
+::ng-deep.gjs-block-categories {
+   height: 55px;
+}
+
+::ng-deep.gjs-title {
+   display: none;
+}
+
+::ng-deep.gjs-pn-commands {
+   width: 100%;
+   // top: -55px;
+   // z-index: 0;
+}
+
+::ng-deep.gjs-pn-views {
+   width: 0;
+}
+
+::ng-deep.gjs-pn-options {
+   right: 0;
+}
+
+::ng-deep.gjs-block-category {
+   // z-index: 1;
+}
+
+::ng-deep.gjs-sm-properties {
+   padding: 0 5px;
+}
+p > span.entity-class {
+   font-family: "Roboto";
+   font-weight: 400;
+   text-transform: uppercase;
+   font-size: 14px;
+   line-height: 16px;
+   color: #09064a !important;
+ }
+
+.merge-field {
+   height: '100px';
+   width: '200px';
+   display: 'inline-block';
+   border: 1px dashed #455699;
+   text-align: 'center';
+   background-color: #000000;
+   padding: 3px;
+   border-radius: 5px;
+   color: black;
+}
+
+::ng-deep.gjs-selected .row {
+   padding: 5px !important;
+}
+
+::ng-deep.gjs-sm-property__border-radius, ::ng-deep.gjs-sm-property__background-color {
+   width: 50% !important;
+}
+
+::ng-deep.gjs-sm-property__background, ::ng-deep.gjs-sm-property__border {
+   width: 100% !important;
+}
+
+::ng-deep.gjs-sm-sectors {
+   // position: absolute;
+   // top: 0;
+   // left: 0;
+   // right: 0;
+   // z-index: 1;
+ }
+
+::ng-deep.gjs-sm-property__border-width, ::ng-deep.gjs-sm-property__border-style, ::ng-deep.gjs-sm-property__border-color {
+   width: 33% !important;
+}
+
+::ng-deep.gjs-block-label {
+   visibility: hidden;
+}
+
+::ng-deep.para {
+   margin: 0;
+   line-height: 30px;
+}
+
+::ng-deep.ck-editable {
+   padding: 0;
+}

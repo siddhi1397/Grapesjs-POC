@@ -30,9 +30,23 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "./node_modules/grapesjs/dist/css/grapes.min.css"
             ],
-            "scripts": []
+            "scripts": [
+              "./node_modules/grapesjs/dist/grapes.min.js",
+              "./node_modules/grapesjs-plugin-ckeditor/dist/grapesjs-plugin-ckeditor.min.js",
+              "./node_modules/jquery/dist/jquery.min.js",
+              "./node_modules/jquery-ui/dist/jquery-ui.js"
+            ],
+            "allowedCommonJsDependencies": [
+              "grapesjs-plugin-ckeditor",
+              "grapesjs-blocks-basic",
+              "grapesjs-preset-webpage",
+              "grapesjs-tui-image-editor",
+              "juice",
+              "grapesjs"
+            ]
           },
           "configurations": {
             "production": {
@@ -40,7 +54,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumError": "5mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -100,5 +114,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "0b2f3eeb-5dca-4b30-a23b-c42360356336"
   }
 }
