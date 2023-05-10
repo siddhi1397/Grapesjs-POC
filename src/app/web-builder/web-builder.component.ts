@@ -1,36 +1,32 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import grapesjs from 'grapesjs';
 import 'grapesjs-preset-webpage';
 import 'grapesjs-blocks-basic';
 import 'grapesjs-plugin-ckeditor';
 import plugin from 'grapesjs-tui-image-editor';
+import '@silexlabs/grapesjs-fonts';
 import juice from 'juice';
-import { Callbacks } from 'jquery';
 @Component({
   selector: 'app-web-builder',
   templateUrl: './web-builder.component.html',
   styleUrls: ['./web-builder.component.scss'],
 })
 export class WebBuilderComponent implements OnInit {
-  @ViewChild('editor', { static: false }) editor1: any;
   public editor: any;
   model: any;
   entityName: string = '';
-  test: boolean = false;
+  showStyle: boolean = false;
   constructor() {}
 
   ngOnInit(): void {
+    // const css = '.gjs-hovered {border-top-width: 0; border-bottom-width: 0;border-left-width: 0;border-right-width: 0;border-bottom-style: none;border-top-style: none;border-left-style: none;border-right-style: none;border-bottom-color: transparent;border-top-color: transparent;border-left-color: transparent;border-right-color: transparent;border-image-outset: unset;border-image-source: none;border-image-slice: unset;border-image-width: unset;border-image-repeat: unset; }';
     this.initEditor();
     this.componentSelect();
-    this.handleDoubleClick();
+    const css = '.gjs-badge {display: none !important;}';
+    this.editor.setStyle(css);
+
     this.editor.on('component:deselected', (args: any) => {
-      this.test = false;
+      this.showStyle = false;
       if (args.attributes.type === 'text') {
         let divArea: any = document
           .querySelector('iframe')
@@ -41,14 +37,34 @@ export class WebBuilderComponent implements OnInit {
             if (divArea![i].children.length > 0) {
               let block = '';
               for (let j = 0; j < divArea![i].children!.length; j++) {
-                if (divArea![i].children[j].getAttribute('class')) {
-                  block += divArea![i].children[j].outerHTML;
-                } 
-                else {
+                if(divArea[i].children[j].children.length > 0) {
+                  console.log(divArea[i].children[j].children[0].outerHTML);
+                  let innerText = divArea[i].children[j].children[0].innerText.trim().split(' ');
+                  if(innerText.length === 1) {
+                    block += divArea[i].children[j].outerHTML;
+                  }
+                }
+                else if (divArea![i].children[j].getAttribute('class')) {
+                  const span = document.createElement('span');
+                  span.innerHTML = divArea![i].children[j].innerText;
+                  span.setAttribute('id', `entity${i}-${j}-${args.ccid}`);
+                  span.setAttribute('contenteditable', 'false');
+                  span.setAttribute(
+                    'style',
+                    'color: #00adc5; border: 1px solid; padding: 3px;pointer-events: none;cursor: not-allowed;'
+                  );
+                  span.setAttribute(
+                    'class',
+                    divArea![i].children[j].getAttribute('class')
+                  );
+                  block += span.outerHTML;
+                  // block += divArea![i].children[j].outerHTML;
+                } else {
                   let spanText = divArea![i].children[j].innerText.split(' ');
+                  const outerHTML = divArea[i].children[j].outerHTML.toString();
                   spanText?.forEach((el: any, index: number) => {
-                    if(el.trim()) {
-                      let e = `<span id="block${i}${j}-${index}"> ${el} </span>`;
+                    if (el.trim()) {
+                      let e = `<span id="block${i}${j}-${index}-${args.ccid}"> ${el} </span>`;
                       block += e;
                     }
                   });
@@ -59,38 +75,40 @@ export class WebBuilderComponent implements OnInit {
               let paraText = divArea![i].innerText?.split(' ');
               divArea![i].innerHTML = '';
               paraText?.forEach((el: any, index: number) => {
-                let e = `<span id="block${i}-${index}"> ${el} </span>`;
+                let e = `<span id="block${i}-${index}-${args.ccid}"> ${el} </span>`;
                 divArea![i].innerHTML += e;
               });
             }
           }
-          let dividedSpan = document
-            .querySelector('iframe')
-            ?.contentWindow?.document.getElementsByTagName('span');
-          for (let i = 0; i < dividedSpan!.length; i++) {
-            let spanTag = document
-              .querySelector('iframe')
-              ?.contentWindow?.document.getElementById(dividedSpan![i].id);
 
-            spanTag?.addEventListener('dragover', (e: any) => {
-              e.preventDefault();
-            });
-            spanTag?.addEventListener('drop', (e: any) => {
-              var el = document
+          for (let j = 0; j < divArea.length; j++) {
+            let dividedSpan = divArea[j].children;
+            for (let i = 0; i < dividedSpan!.length; i++) {
+              let spanTag = document
                 .querySelector('iframe')
-                ?.contentWindow?.document.getElementById(e.target.id);
-              el?.setAttribute('style', 'border: none');
-              let span = this.createElement(e);
-              let htmlText = new DOMParser().parseFromString(
-                span.outerHTML,
-                'text/html'
-              );
+                ?.contentWindow?.document.getElementById(dividedSpan![i].id);
 
-              el?.parentNode?.insertBefore(
-                htmlText.body.childNodes[0],
-                el.nextSibling
-              );
-            });
+              if(!spanTag?.className) {
+                spanTag?.addEventListener('dragover', (e: any) => {
+                  e.preventDefault();
+                });
+                spanTag?.addEventListener('drop', (e: any) => {
+                  var el = document
+                    .querySelector('iframe')
+                    ?.contentWindow?.document.getElementById(e.target.id);
+                  let span = this.createElement(e);
+                  let htmlText = new DOMParser().parseFromString(
+                    span.outerHTML,
+                    'text/html'
+                  );
+                  el?.parentNode?.insertBefore(
+                    htmlText.body.childNodes[0],
+                    el.nextSibling
+                  );
+                });
+              }
+             
+            }
           }
         }
       }
@@ -117,7 +135,7 @@ export class WebBuilderComponent implements OnInit {
         type: 'custom',
         autoload: true,
         autosave: true,
-        stepsBeforeSave: 1
+        stepsBeforeSave: 1,
       },
       blockManager: {
         appendTo: '#blocks',
@@ -128,24 +146,26 @@ export class WebBuilderComponent implements OnInit {
       showDevices: false,
       styleManager: {
         appendTo: '#style-container',
-        sectors: [{
-          name: 'Styles',
-          open: false,
-          buildProps: [
-            'border-radius-c',
-            'background-color',
-            'background',
-            'border',
-          ],
-        }],
+        sectors: [
+          {
+            name: 'Styles',
+            open: false,
+            buildProps: [
+              'border-radius-c',
+              'background-color',
+              'background',
+              'border',
+            ],
+          },
+        ],
       },
       layerManager: {},
       traitManager: {},
       plugins: [
         'gjs-blocks-basic',
         plugin,
-        'gjs-plugin-ckeditor',
-        'grapesjs-preset-webpage',
+        'grapesjs-plugin-ckeditor',
+        // 'grapesjs-preset-webpage',
       ],
       pluginsOpts: {
         'gjs-blocks-basic': {
@@ -159,13 +179,14 @@ export class WebBuilderComponent implements OnInit {
           },
         },
         'grapesjs-preset-webpage': {},
-        'gjs-plugin-ckeditor': {
+        'grapesjs-plugin-ckeditor': {
           position: 'left',
           options: {
-            contentsCss: '/../../../../assets/contents.css',
+            // contentsCss: '/../../../../assets/contents.css',
             extraPlugins:
               'sharedspace,justify,colorbutton,panelbutton,justify,font,floatpanel,panel,openlink,richcombo,mentions,xml,autocomplete,textmatch,textwatcher,ajax',
             removeDialogTabs: 'image:advanced;link:advanced',
+            allowedContent: true,
             toolbar: [
               [
                 'Bold',
@@ -181,7 +202,7 @@ export class WebBuilderComponent implements OnInit {
               { name: 'colors', items: ['TextColor'] },
               { name: 'paragraph', items: ['NumberedList', 'BulletedList'] },
               { name: 'styles', items: ['Font', 'FontSize'] },
-              // { name: 'Merge Fields', items: ['strinsert'] },
+              { name: 'Merge Fields', items: ['strinsert'] },
             ],
             mentions: [
               {
@@ -216,7 +237,6 @@ export class WebBuilderComponent implements OnInit {
     this.editor.StorageManager.add('custom', {
       load: (keys: any, clb: any) => {
         this.editor.setComponents(localStorage.getItem('submitData'));
-     
       },
       store: function (data: any, clb: any, opts: any) {
         localStorage.setItem(
@@ -234,6 +254,7 @@ export class WebBuilderComponent implements OnInit {
 
   componentSelect() {
     this.editor.on('component:selected', (args: any) => {
+      this.showStyle = true;
       if (args.attributes.type === 'wrapper') {
         args.attributes.resizable = false;
         args.attributes.toolbar = [];
@@ -261,56 +282,6 @@ export class WebBuilderComponent implements OnInit {
         ];
       }
     });
-  }
-
-  handleDoubleClick() {
-    // let defaultType = this.editor.DomComponents.getType('text');
-    // this.editor.DomComponents.addType(defaultType.id, {
-    //   view: defaultType.view.extend({
-    //     events: {
-    //       click: 'handleClick',
-    //       dblclick: function (e: any) {
-    //         let divArea: any = document
-    //           .querySelector('iframe')
-    //           ?.contentWindow?.document.getElementById(e.target.id)?.children;
-    //           console.log(e);
-              
-    //           if (divArea?.length > 0) {
-    //             for (let i = 0; i < divArea!.length; i++) {
-    //               divArea![i].setAttribute('id', `p${i}`);
-    //               divArea![i].setAttribute('contenteditable', true);
-                  
-    //               if (divArea![i].children.length > 0) {
-    //                 let block = '';
-    //                 for (let j = 0; j < divArea![i].children!.length; j++) {
-    //                   if (divArea![i].children[j].getAttribute('class')) {
-    //                     divArea![i].children[j].setAttribute('contenteditable', false);
-    //                     block += divArea![i].children[j].outerHTML;
-    //                   } else {
-    //                     let spanText = divArea![i].children[j].innerText.split(' ');
-    //                     spanText?.forEach((el: any, index: number) => {
-    //                       if(el.trim()) {
-    //                         let e = `<span id="block${i}${j}-${index}"> ${el} </span>`;
-    //                         block += e;
-    //                       }
-    //                     });
-    //                   }
-    //                 }
-    //                 divArea![i].innerHTML = block;
-    //               } else {
-    //                 let paraText = divArea![i].innerText?.split(' ');
-    //                 divArea![i].innerHTML = '';
-    //                 paraText?.forEach((el: any, index: number) => {
-    //                   let e = `<span id="block${i}-${index}"> ${el} </span>`;
-    //                   divArea![i].innerHTML += e;
-    //                 });
-    //               }
-    //             }
-    //           }
-    //       },
-    //     },
-    //   }),
-    // });
   }
 
   addVideoBlock() {
@@ -346,17 +317,18 @@ export class WebBuilderComponent implements OnInit {
   }
 
   createElement(e: any) {
+    const uniqueId = Math.random().toString(36).slice(2);
     const span = document.createElement('span');
     span.innerHTML =
       'u' + String(e.dataTransfer.getData('custom')).split(',')[1];
     span.setAttribute(
       'id',
-      String(e.dataTransfer.getData('custom')).split(',')[0]
+      String(e.dataTransfer.getData('custom')).split(',')[0] + '-' + uniqueId
     );
     span.setAttribute('contenteditable', 'false');
     span.setAttribute(
       'style',
-      'color: #00adc5; border: 1px solid; padding: 3px;'
+      'color: #00adc5; border: 1px solid; padding: 3px;pointer-events: none;cursor: not-allowed;'
     );
     span.setAttribute(
       'class',
